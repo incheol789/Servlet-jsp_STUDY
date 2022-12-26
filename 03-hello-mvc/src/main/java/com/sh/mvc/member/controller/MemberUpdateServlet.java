@@ -55,11 +55,13 @@ public class MemberUpdateServlet extends HttpServlet{
 		if(result > 0) {
 			// 회원정보 수정 성공 메세지
 			session.setAttribute("msg", "회원정보 수정 완료!");
+			response.sendRedirect("index.jsp");
 		}
 		
 	} catch (Exception e) {
 		// 회원정보 수정 실패 메세지
 		session.setAttribute("msg", "회원정보 수정 실패 ㅠ_ㅠ");
+		response.sendRedirect("memberView.jsp");
 		// 예외로깅
 		e.printStackTrace();
 	} 
