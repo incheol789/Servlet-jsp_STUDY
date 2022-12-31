@@ -53,15 +53,27 @@ values (
 commit;
 
 select * from member;
+select * from member order by enroll_date desc;
 
 --insert into member
 --values (
 --    ?, ?, ?, default, ?, ?, ?, ?, ?, default, default
 --);
 
+--update member
+--set
+--    member_name = ?,
+--    gender = ?,
+--    birthday = ?,
+--    email = ?,
+--    phone = ?,
+--    hobby = ?
+--where
+--    member_id = ?
 
-
-
+delete from member 
+where member_id in ('xyzxyz', 'khkh');
+commit;
 
 
 

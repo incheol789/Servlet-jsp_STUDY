@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.sh.mvc.common.HelloMvcUtils;
 import com.sh.mvc.member.model.dto.Gender;
 import com.sh.mvc.member.model.dto.Member;
 import com.sh.mvc.member.model.service.MemberService;
@@ -40,11 +41,11 @@ public class MemberEnrollServlet extends HttpServlet {
 		
 		try {
 			// 0. 인코딩처리
-			request.setCharacterEncoding("utf-8");
+//			request.setCharacterEncoding("utf-8");
 			
 			// 1. 사용자입력값 가져오기 -> Member객체
 			String memberId = request.getParameter("memberId");
-			String password = request.getParameter("password");
+			String password = HelloMvcUtils.getEncryptedPassword(request.getParameter("password"), memberId);
 			String memberName = request.getParameter("memberName");
 			String _birthday = request.getParameter("birthday"); // "" "1988-08-08"
 			String email = request.getParameter("email");

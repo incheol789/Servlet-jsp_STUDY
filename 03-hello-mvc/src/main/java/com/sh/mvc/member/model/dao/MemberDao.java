@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import com.sh.mvc.member.model.dto.Gender;
@@ -72,13 +74,48 @@ public class MemberDao {
 		
 		return member;
 	}
+	
+	public List<Member> selectAllMember(Connection conn) {
+		String sql = prop.getProperty("selectAllMember"); // select * from member order by enroll_date desc
+		List<Member> members = new ArrayList<>();
+		
+		try(
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			ResultSet rset = pstmt.executeQuery();
+		){
+			
+			while(rset.next()) {
+				Member member = new Member();
+				member.setMemberId(rset.getString("member_id"));
+				member.setPassword(rset.getString("password"));
+				member.setMemberName(rset.getString("member_name"));
+				member.setMemberRole(MemberRole.valueOf(rset.getString("member_role")));
+				member.setGender(rset.getString("gender") != null ? 
+									Gender.valueOf(rset.getString("gender")) : 
+										null);
+				member.setBirthday(rset.getDate("birthday"));
+				member.setEmail(rset.getString("email"));
+				member.setPhone(rset.getString("phone"));
+				member.setHobby(rset.getString("hobby"));
+				member.setPoint(rset.getInt("point"));
+				member.setEnrollDate(rset.getTimestamp("enroll_date"));
+				
+				members.add(member);
+			}
+			
+		} catch (SQLException e) {
+			throw new MemberException("관리자 회원목록조회 오류!", e);
+		}
+				
+		return members;
+	}
 
 	public int insertMember(Connection conn, Member member) {
 		String sql = prop.getProperty("insertMember"); // insert into member values (?, ?, ?, default, ?, ?, ?, ?, ?, default, default)
 		int result = 0;
 		
 		// 1. PreparedStatement 생성 및 미완성sql 값대입
-		try(PreparedStatement pstmt = conn.prepareCall(sql)){
+		try(PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setString(1, member.getMemberId());
 			pstmt.setString(2, member.getPassword());
 			pstmt.setString(3, member.getMemberName());
@@ -92,39 +129,96 @@ public class MemberDao {
 			result = pstmt.executeUpdate();
 			
 		} catch (SQLException e) {
-			throw new MemberException(e);
-		} 
-		
-		
-		return result;
-	}
-
-	public int updateMember(Connection conn, Member member) {
-		String sql = prop.getProperty("updateMember");
-		int result = 0;
-		
-		// 1. PreparedStatement 생성 및 미완성 sql 값대입
-		try(PreparedStatement pstmt = conn.prepareStatement(sql)){
-			pstmt.setString(1, member.getMemberName());
-			pstmt.setString(2, member.getGender().name());
-//			pstmt.setString(4, "TestRole");
-			pstmt.setDate(3, member.getBirthday());
-			pstmt.setString(4, member.getEmail());
-			pstmt.setString(5, member.getPhone());
-			pstmt.setString(6, member.getHobby());
-//			pstmt.setInt(9, member.getPoint());
-//			pstmt.setDate(11, member.getEnrollDate());
-			pstmt.setString(7, member.getMemberId());
-			
-			
-			
-			// 2. 실행 -> int
-			result = pstmt.executeUpdate();
-			
-		} catch (SQLException e) {
-			throw new MemberException(e);
+			throw new MemberException("회원가입오류", e);
 		}
 		return result;
 	}
 
+	public int updateMember(Connection conn, Member member) {
+		// update member set member_name = ?, gender = ?, birthday = ?, email = ?, phone = ?, hobby = ? where member_id = ?
+		String sql = prop.getProperty("updateMember");
+		int result = 0;
+		
+		try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+			pstmt.setString(1, member.getMemberName());
+			pstmt.setString(2, member.getGender().name());
+			pstmt.setDate(3, member.getBirthday());
+			pstmt.setString(4, member.getEmail());
+			pstmt.setString(5, member.getPhone());
+			pstmt.setString(6, member.getHobby());
+			pstmt.setString(7, member.getMemberId());
+			
+			result = pstmt.executeUpdate();
+			
+		} catch (SQLException e) {
+			throw new MemberException("회원정보 수정 오류", e);
+		}
+		
+		return result;
+	}
+
+	public int updatePassword(Connection conn, Member member) {
+		String sql = prop.getProperty("updatePassword");
+		int result = 0;
+
+		try (PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setString(1, member.getPassword());
+			pstmt.setString(2, member.getMemberId());
+
+			result = pstmt.executeUpdate();
+
+		} catch (SQLException e) {
+			throw new MemberException("비밀번호 수정 오류!", e);
+		}
+
+		return result;
+	}
+
+	public int updateMemberRole(Connection conn, String memberId, String memberRole) {
+// updateMemberRole = update member set member_role = ? where member_id =?
+		String sql = prop.getProperty("updateMemberRole");
+		int result = 0;
+
+		try (PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setString(1, memberRole);
+			pstmt.setString(2, memberId);
+
+			result = pstmt.executeUpdate();
+
+		} catch (SQLException e) {
+			throw new MemberException("관리자 회원권한 수정 오류!", e);
+		}
+
+		return result;
+	}
+
+	public int deleteMember(Connection conn, String memberId) {
+		String sql = prop.getProperty("deleteMember");
+		int result = 0;
+		
+		try(PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, memberId);
+			
+			result = pstmt.executeUpdate();
+			
+		} catch (SQLException e) {
+			throw new MemberException("회원 삭제 실패 오류", e);
+		}
+		return result;
+	}
+
+
+
+	
+
 }
+
+
+
+
+
+
+
+
+
+

@@ -39,7 +39,8 @@ public class JdbcTemplate {
 		
 		try {
 			// 1. driver class 등록 : 프로그램 실행시 최초 1회만 처리
-			Class.forName(driverClass);
+			Class<?> driverClassInstance = Class.forName(driverClass);
+			System.out.println(driverClassInstance);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
