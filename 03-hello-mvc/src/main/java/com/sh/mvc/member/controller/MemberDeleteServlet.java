@@ -36,8 +36,7 @@ public class MemberDeleteServlet extends HttpServlet {
 		else {
 			// 회원 탈퇴에 실패한 경우
 			session.setAttribute("msg", memberId + "회원 탈퇴 실패");
-			request.getRequestDispatcher("views/common/memberView.jsp")
-				.forward(request, response);
+			response.sendRedirect(request.getContextPath() + "/");
 
 
 		// 3. view단 처리  - /member/memberView
