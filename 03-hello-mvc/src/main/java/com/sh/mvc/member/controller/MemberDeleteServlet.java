@@ -30,7 +30,7 @@ public class MemberDeleteServlet extends HttpServlet {
 		int result = memberService.deleteMember(memberId);
 		if(result > 0) {
 			// 회원 탈퇴에 성공한 경우
-			session.setAttribute("msg", "회원 탈퇴 성공");
+			session.setAttribute("msg", memberId + "회원 탈퇴 성공");
 			response.sendRedirect(request.getContextPath() + "/member/logout");
 		} 
 		else {
